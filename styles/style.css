@@ -1,0 +1,173 @@
+html, body {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  font-family:'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+}
+
+/* Smooth scroll behavior */
+html {
+  scroll-behavior: smooth; /* smooth - gradual scrolling or auto - instant scrolling */
+}
+  
+.gradient {
+  background: linear-gradient(to right, #3CBDA5, #2B2B6D); /* Gradient from top to bottom */
+	background-size: 100% calc(100% + 1px);
+}
+
+/* Style for a fixed header */
+header {
+  position: fixed; /* Fixed header at top edge of screen */
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 60px;
+  background-color: #333;
+  color: white;
+  text-align: center;
+  line-height: 60px;
+  font-size: 30px;
+  z-index: 100;
+}
+
+/* Spacing to push content below the header */
+.content {
+  margin-top: 60px;
+}
+
+#web-canvas {
+  width: 100%;
+  height: 100%;
+  z-index: -1;
+  position: fixed;
+  touch-action: none;
+}
+
+#web-canvas-container {
+  width: 100%;
+  height: 100%;
+  position: fixed;
+  top: 0;
+  z-index: 1;
+}
+
+/* Navigation links in header */
+nav a { /* nav selector targeting all <a> elements (anchor tags) within a <nav> element */
+  color: white;
+  margin: 0 15px;
+  text-decoration: none;
+  font-size: 18px;
+}
+
+nav a:hover { /* :hover pseudo-class allows <nav> element to change when hovered */
+  text-decoration: underline;
+}
+
+section {
+  height: 100vh;
+  padding: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 40px;
+  color: white;
+  text-align: center;
+  z-index: 5;
+}
+
+/* Different background content for each section */
+#view1 {
+  background-color: #00d9ff;
+}
+
+#view2 {
+  background-color: #ff5500;
+}
+
+#view3 {
+  background-color: #a6ff00;
+}
+
+#view4 {
+  background-image: linear-gradient(to right, red,orange,yellow,green,blue,indigo,violet);
+}
+
+#view5 {
+  background-image: url(../assets/wallpaper.jpg);
+}
+
+#section6 {
+  background-color: rgba(0, 0, 0, 1);
+}
+
+.video {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  width: 100%;
+  min-height: 100vh;
+  text-align: center;
+  padding: 0 30px;
+  z-index: 1;
+}
+
+.video video {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background: black;
+  color: white;
+}
+
+.overlay-text {
+  position: absolute;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+  background: #ffffff00;
+  color: #fff;
+}
+
+/* #view6 {
+  background-color: rgb(127, 127, 127);
+} */
+
+#pre-order {
+  background-color: rgb(128, 128, 128);
+}
+
+.back-to-top {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background-color: #aa00ff;
+  color: white;
+  padding: 10px 15px;
+  text-decoration: none;
+  border-radius: 20px;
+  display: none;
+  z-index: 10;
+}
+
+.back-to-top:hover { /* Hover is a pseudo-class */
+  background-color: #ff00ee;
+}
+
+/* Show button when user scrolls past section 1 */
+body.scrolled .back-to-top {
+  display: block;
+}
+
+/* Footer */
+footer {
+  height: 100px;
+  background-color: #222;
+  color: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
