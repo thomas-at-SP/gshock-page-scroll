@@ -1,34 +1,16 @@
-// import {
-//   ViewerApp,
-//   AssetManagerPlugin,
-//   addBasePlugins,
-//   ScrollableCameraViewPlugin,
-//   VariationConfiguratorPlugin,
-//   FrameFadePlugin,
-//   LoadingScreenPlugin,
-//   PickingPlugin,
-//   TweakpaneUiPlugin,
-//   MaterialConfiguratorPlugin,
-
-//   // Import THREE.js internals
-//   Color,
-// 	Texture,
-//   Vector3
-// } from 'webgi';
 import {
-  ContactShadowGroundPlugin,
   LoadingScreenPlugin,
   ProgressivePlugin,
   SSAAPlugin,
-  ScrollAnimationPlugin,
+  ContactShadowGroundPlugin,
   ThreeViewer
 } from 'threepipe';
 
+let viewer;
+let model;
+
 async function setupViewer() {
-//   const viewer = new ViewerApp({
-//       canvas: document.getElementById('web-canvas'),
-//   });
-  const viewer = new ThreeViewer({
+  viewer = new ThreeViewer({
     canvas: document.getElementById('web-canvas'),
     msaa: false,
     renderScale: "auto",
@@ -40,48 +22,92 @@ async function setupViewer() {
     ]
   });
 
-//   await addBasePlugins(viewer);
-//   await viewer.addPlugin(ScrollableCameraViewPlugin);
-
-//   // const manager = await viewer.getPlugin(AssetManagerPlugin);
-//   // This must be called after adding any plugin that changes the render pipeline.
-// 	viewer.renderer.refreshPipeline();
-
-//   // Load an environment map if not set in the glb file
    await viewer.setEnvironmentMap("./assets/autumn forest.hdr");
-
-//   // await manager.addFromPath("./assets/casio watch.glb");
-   await viewer.load("./assets/casio g-shock watch v2.glb");
-
-//   // let scrollSection = document.getElementById("scrollSection");
-//   // await viewer.getPlugin(new ScrollableCameraViewPlugin(scrollSection));
+   model = await viewer.load("./assets/casio g-shock watch v2.glb");
+   console.log('Loaded model:', model);
+   console.log('Default camera:', viewer.scene.defaultCamera);
 }
 
 setupViewer();
 
-// window.onscroll = function() {
-//   if(document.body.scrollTop > 100 || document.documentElement.scrollTop > 100) {
-//       document.querySelector('.back-to-top').style.display = 'block';
-//   } else {
-//       document.querySelector('.back-to-top').style.display = 'none';
-//   }
-// };
+let scrollPosition = 0;
+let initialModelPosition = false;
+let initialCameraPosition = false;
 
-// let scrollSpeed = 1.0;
+// Update scroll position on scroll events
+window.addEventListener('scroll', function() {
+  scrollPosition = window.scrollY;
+  console.log('Current scroll position:', scrollPosition);
+});
 
-// // Add an event listener for the 'wheel' event
-// document.addEventListener('wheel', function(event) {
-//   // Prevent default scrolling behavior
-//   event.preventDefault();
+// Hook into ThreePipe's update loop to apply rotation and lock camera/model position
+viewer.addEventListener('postFrame', () => {
+  if (model && viewer) {
+    // Store initial positions on first frame
+    if (!initialModelPosition) {
+      initialModelPosition = {
+        x: model.position.x,
+        y: model.position.y,
+        z: model.position.z
+      };
+      
+      const camera = viewer.camera || (viewer.scene && viewer.scene.defaultCamera);
+      if (camera) {
+        initialCameraPosition = {
+          x: camera.position.x,
+          y: camera.position.y,
+          z: camera.position.z
+        };
+        console.log('Camera position stored:', initialCameraPosition);
+      }
+      console.log('Camera object:', viewer.scene.defaultCamera);
+    }
+    
+    // Apply rotation based on scroll
+    model.rotation.y = scrollPosition * 0.005;
+    
+    // Reset model position
+    model.position.x = initialModelPosition.x;
+    model.position.y = initialModelPosition.y;
+    model.position.z = initialModelPosition.z;
+    
+    // Reset camera position
+    if (initialCameraPosition) {
+      const camera = viewer.camera || (viewer.scene && viewer.scene.defaultCamera);
+      if (camera) {
+        camera.position.x = initialCameraPosition.x;
+        camera.position.y = initialCameraPosition.y;
+        camera.position.z = initialCameraPosition.z;
+      }
+    }
+    // viewer.setDirty();
+  }
+});
 
-//   // Calculate the new scroll position
-//   let delta = event.deltaY;
-//   let scrollPosition = window.scrollY + (delta * scrollSpeed);
+window.onscroll = function() {
+  if(document.body.scrollTop > 100 || document.documentElement.scrollTop > 100) {
+      document.querySelector('.back-to-top').style.display = 'block';
+  } else {
+      document.querySelector('.back-to-top').style.display = 'none';
+  }
+};
 
-//   // Set the new scroll position
-//   window.scrollTo({
-//     top: scrollPosition,
-//     behavior: 'smooth'
-//   });
-// },
-// { passive: false });
+let scrollSpeed = 1.0;
+
+// Add an event listener for the 'wheel' event
+document.addEventListener('wheel', function(event) {
+  // Prevent default scrolling behavior
+  event.preventDefault();
+
+  // Calculate the new scroll position
+  let delta = event.deltaY;
+  let scrollPosition = window.scrollY + (delta * scrollSpeed);
+
+  // Set the new scroll position
+  window.scrollTo({
+    top: scrollPosition,
+    behavior: 'smooth'
+  });
+},
+{ passive: false });
+
