@@ -3,11 +3,12 @@ import {
   ProgressivePlugin,
   SSAAPlugin,
   ContactShadowGroundPlugin,
-  ThreeViewer
+  ThreeViewer,
 } from 'threepipe';
 
 let viewer;
 let model;
+let camera;
 
 async function setupViewer() {
   viewer = new ThreeViewer({
@@ -19,13 +20,21 @@ async function setupViewer() {
       LoadingScreenPlugin,
       ProgressivePlugin, SSAAPlugin,
       ContactShadowGroundPlugin
-    ]
+    ],
+    rgbm: false, // rgbm doesn't support transparent backgrounds
+    backgroundColor: null,
   });
 
-   await viewer.setEnvironmentMap("./assets/autumn forest.hdr");
-   model = await viewer.load("./assets/casio g-shock watch v2.glb");
-   console.log('Loaded model:', model);
-   console.log('Default camera:', viewer.scene.defaultCamera);
+  // (Since we clear the background, environment map is not needed)
+  //- await viewer.setEnvironmentMap("./assets/autumn forest.hdr");
+  model = await viewer.load("./assets/casio g-shock watch v2.glb");
+  //+  console.log('Loaded model:', model);
+  //+  console.log('Default camera:', viewer.scene.defaultCamera);
+  camera = viewer.scene.defaultCamera;
+  viewer.scene.background = null; // Remove background texture
+  viewer.scene.setBackgroundColor(null); // Remove background color
+  // Model is offset from centre: move it a bit left
+  model.position.x -= 1;
 }
 
 setupViewer();
@@ -34,14 +43,9 @@ let scrollPosition = 0;
 let initialModelPosition = false;
 let initialCameraPosition = false;
 
-// Update scroll position on scroll events
-window.addEventListener('scroll', function() {
-  scrollPosition = window.scrollY;
-  console.log('Current scroll position:', scrollPosition);
-});
-
 // Hook into ThreePipe's update loop to apply rotation and lock camera/model position
 viewer.addEventListener('postFrame', () => {
+  // let scrollPosition = window.scroll.y;
   if (model && viewer) {
     // Store initial positions on first frame
     if (!initialModelPosition) {
@@ -50,21 +54,21 @@ viewer.addEventListener('postFrame', () => {
         y: model.position.y,
         z: model.position.z
       };
+      console.log('Model position stored: ', initialModelPosition);
       
-      const camera = viewer.camera || (viewer.scene && viewer.scene.defaultCamera);
       if (camera) {
         initialCameraPosition = {
           x: camera.position.x,
           y: camera.position.y,
           z: camera.position.z
         };
-        console.log('Camera position stored:', initialCameraPosition);
+        //+ console.log('Camera position stored:', initialCameraPosition);
       }
-      console.log('Camera object:', viewer.scene.defaultCamera);
+      //+ console.log('Camera object:', viewer.scene.defaultCamera);
     }
     
     // Apply rotation based on scroll
-    model.rotation.y = scrollPosition * 0.005;
+    model.rotation.y = scrollPosition * 0.004;
     
     // Reset model position
     model.position.x = initialModelPosition.x;
@@ -73,14 +77,12 @@ viewer.addEventListener('postFrame', () => {
     
     // Reset camera position
     if (initialCameraPosition) {
-      const camera = viewer.camera || (viewer.scene && viewer.scene.defaultCamera);
       if (camera) {
         camera.position.x = initialCameraPosition.x;
         camera.position.y = initialCameraPosition.y;
         camera.position.z = initialCameraPosition.z;
       }
     }
-    // viewer.setDirty();
   }
 });
 
@@ -101,7 +103,7 @@ document.addEventListener('wheel', function(event) {
 
   // Calculate the new scroll position
   let delta = event.deltaY;
-  let scrollPosition = window.scrollY + (delta * scrollSpeed);
+  scrollPosition = window.scrollY + (delta * scrollSpeed);
 
   // Set the new scroll position
   window.scrollTo({
@@ -111,3 +113,10 @@ document.addEventListener('wheel', function(event) {
 },
 { passive: false });
 
+window.addEventListener('hashchange', () => {
+  if (window.location.hash === '#top') {
+    console.log('The user moved to the top of the page!');
+    scrollPosition = 0;
+    viewer.setDirty();
+  }
+});
