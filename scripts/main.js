@@ -30,7 +30,8 @@ async function setupViewer() {
   model = await viewer.load("./assets/casio g-shock watch v2.glb");
   //+  console.log('Loaded model:', model);
   //+  console.log('Default camera:', viewer.scene.defaultCamera);
-  camera = viewer.scene.defaultCamera;
+  camera = viewer.scene.mainCamera;
+
   viewer.scene.background = null; // Remove background texture
   viewer.scene.setBackgroundColor(null); // Remove background color
   // Model is offset from centre: move it a bit left
